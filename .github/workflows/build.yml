@@ -12,6 +12,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Install ldid (required by Theos)
+        run: |
+          brew install ldid
+          command -v ldid
+
       - name: Show iOS SDK
         run: |
           xcode-select -p
@@ -27,8 +32,8 @@ jobs:
           make clean
           make messages=yes
           mkdir -p out
-          artifact="$(find .theos -type f -name 'FYShopGuard.dylib' -print -quit)"
-          test -n "$artifact" || { echo 'Theos hat keine FYShopGuard.dylib erstellt' >&2; exit 1; }
+          artifact=".theos/obj/FYShopGuard.dylib"
+          test -f "$artifact" || { echo 'Signierte FYShopGuard.dylib nicht gefunden' >&2; exit 1; }
           cp "$artifact" out/FYShopGuard.dylib
           file out/FYShopGuard.dylib
           xcrun --sdk iphoneos lipo -info out/FYShopGuard.dylib
