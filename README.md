@@ -1,6 +1,6 @@
 # FYShopGuard
 
-**FYShopGuard** is an experimental iOS runtime library that filters advertising and shopping-related content from supported short-form video feeds.
+**FYShopGuard** is an experimental iOS runtime library that filters advertising and shopping-related content from TikTok.
 
 It uses multiple on-device signals to identify promotional posts, including ad flags, product metadata, shopping anchors, and commerce-related model properties.
 
