@@ -1,0 +1,41 @@
+name: Build FYShopGuard for ESign
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Show iOS SDK
+        run: |
+          xcode-select -p
+          xcrun --sdk iphoneos --show-sdk-path
+
+      - name: Install Theos
+        run: |
+          git clone --depth=1 --recursive https://github.com/theos/theos.git "$HOME/theos"
+
+      - name: Compile Mach-O dylib
+        run: |
+          export THEOS="$HOME/theos"
+          make clean
+          make messages=yes
+          mkdir -p out
+          artifact="$(find .theos -type f -name 'FYShopGuard.dylib' -print -quit)"
+          test -n "$artifact" || { echo 'Theos hat keine FYShopGuard.dylib erstellt' >&2; exit 1; }
+          cp "$artifact" out/FYShopGuard.dylib
+          file out/FYShopGuard.dylib
+          xcrun --sdk iphoneos lipo -info out/FYShopGuard.dylib
+
+      - name: Artifact for ESign
+        uses: actions/upload-artifact@v4
+        with:
+          name: FYShopGuard-arm64-dylib
+          path: out/FYShopGuard.dylib
+          if-no-files-found: error
